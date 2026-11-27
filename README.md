@@ -49,8 +49,20 @@ SPRING_PROFILES_ACTIVE=postgres ./gradlew bootRun
     - `timezone=auto` + 조행 시각에 가장 가까운 시간대 값 선택
     - 응답 필드: `windSpeedMs`, `windDirectionDeg`, `windDirectionText`(16방위 한글), `windGustMs`, `waveHeightM`, `waterTemp`(SST)
   - 외부 호출 실패 시 조용히 null (조행 등록은 항상 성공)
-  - 조석/물때(`tideInfo`)는 Open-Meteo 범위 밖 → 국립해양조사원(바다누리) 연동 예정
-  - 테스트용 `StubEnvironmentDataProvider`(외부 호출 없음)도 유지 — `@Primary` 를 옮기면 전환
+  - 물때/조석: **`KhoaTideProvider`** — 국립해양조사원(바다누리) 조석예보
+    - data.go.kr `tideFcstHghLw` API, 좌표 → 가장 가까운 조위관측소(62개소) 자동 선택
+    - 고조/저조 시각으로 들물/날물 판정 → `tideInfo` 예) `"들물 · 다음 고조 18:50 (통영 기준)"`
+    - **공공데이터포털 서비스키 필요**: 환경변수 `KHOA_SERVICE_KEY` (미설정 시 물때만 생략, 나머지는 정상)
+    - 관측소 목록: `resources/khoa-tide-stations.json` (공식 "조위관측소 운영현황"으로 갱신 가능)
+  - `OpenMeteoProvider` + `KhoaTideProvider`를 **`CompositeEnvironmentDataProvider`(@Primary)**가 병합
+  - 테스트용 `StubEnvironmentDataProvider`(외부 호출 없음)도 유지
+
+#### KHOA 조석 활성화
+```bash
+export KHOA_SERVICE_KEY="공공데이터포털에서 발급받은 키"
+./gradlew bootRun
+# → 좌표가 있는 조행 등록 시 tideInfo 자동 채움
+```
 - **지도 검색**: `/api/map/nearby`는 바운딩 박스로 1차 조회 후 Haversine으로 반경을 정밀 필터링하고 거리순 정렬.
 
 ### Phase 3 커뮤니티 (토큰 필요)

@@ -2,7 +2,6 @@ package com.fishing.logbook.environment
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 import java.time.LocalDateTime
@@ -18,7 +17,6 @@ import kotlin.math.abs
  * 예보 API 커버리지(대략 과거 3개월 ~ +16일)를 벗어나면 조용히 null 로 둡니다.
  */
 @Component
-@Primary
 class OpenMeteoProvider : EnvironmentDataProvider {
 
     private val log = LoggerFactory.getLogger(javaClass)

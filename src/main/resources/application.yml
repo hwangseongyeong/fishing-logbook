@@ -28,6 +28,9 @@ app:
   jwt:
     secret: "change-me-to-a-long-random-secret-at-least-32-bytes-long!!"
     expiration-ms: 86400000   # 24h
+  khoa:
+    # 공공데이터포털(data.go.kr) 조석예보 서비스키. 미설정이면 물때(tideInfo) 자동채움 생략.
+    service-key: ${KHOA_SERVICE_KEY:}
 
 ---
 # PostgreSQL로 전환하려면: SPRING_PROFILES_ACTIVE=postgres
