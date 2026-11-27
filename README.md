@@ -46,6 +46,21 @@ SPRING_PROFILES_ACTIVE=postgres ./gradlew bootRun
   실제 연동은 `environment/EnvironmentData.kt`의 `RealEnvironmentDataProvider` 주석 참고 (기상청 단기예보 + 바다누리 조석예보).
 - **지도 검색**: `/api/map/nearby`는 바운딩 박스로 1차 조회 후 Haversine으로 반경을 정밀 필터링하고 거리순 정렬.
 
+### Phase 3 커뮤니티 (토큰 필요)
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| GET | `/api/feed` | 전체 최신 공개 조행 피드 `?page=0&size=20` |
+| GET | `/api/feed/following` | 내가 팔로우하는 사용자들의 공개 조행 피드 |
+| GET | `/api/spots` | 포인트별 조황 집계 `?minTripCount=1` |
+| GET | `/api/users/{id}` | 사용자 프로필(조행/팔로워/팔로잉 수) |
+| POST/DELETE | `/api/users/{id}/follow` | 팔로우 / 언팔로우 |
+| POST/DELETE | `/api/trips/{id}/like` | 좋아요 / 취소 |
+| GET/POST | `/api/trips/{id}/comments` | 댓글 목록 / 작성 |
+| DELETE | `/api/comments/{id}` | 댓글 삭제(본인만) |
+
+- **피드**: 공개(PUBLIC) 조행만 노출. 좋아요/댓글 수·작성자·내가 좋아요했는지를 배치 조회(N+1 방지)로 함께 내려줌.
+- **포인트 집계**: 공개 조행을 약 1km 격자(좌표 소수점 2자리)로 묶어 어종별 조황을 합산 → "이 포인트에서 뭐가 잡히나" 요약.
+
 ## 빠른 테스트 (curl)
 ```bash
 # 1) 회원가입
