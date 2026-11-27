@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: fishing-logbook
+  # 기본은 H2(파일) — 받자마자 바로 실행되고, 앱을 꺼도 ./data 에 데이터가 유지됩니다.
+  datasource:
+    url: jdbc:h2:file:./data/logbook;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true   # http://localhost:8080/h2-console
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+# 업로드된 사진 저장 위치(로컬). 운영에서는 S3 등으로 교체.
+app:
+  upload-dir: ./uploads
+  jwt:
+    secret: "change-me-to-a-long-random-secret-at-least-32-bytes-long!!"
+    expiration-ms: 86400000   # 24h
+
+---
+# PostgreSQL로 전환하려면: SPRING_PROFILES_ACTIVE=postgres
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  datasource:
+    url: jdbc:postgresql://localhost:5432/logbook
+    driver-class-name: org.postgresql.Driver
+    username: logbook
+    password: logbook
+  h2:
+    console:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: validate
