@@ -49,10 +49,16 @@ class Trip(
     var latitude: Double? = null,
     var longitude: Double? = null,
 
-    // 환경 (수동 입력)
+    // 환경 (수동 입력 또는 자동 채움)
     var weather: String? = null,
     var waterTemp: Double? = null,
     var tideInfo: String? = null,
+
+    // 바람/해양 (Open-Meteo 자동 채움)
+    var windSpeedMs: Double? = null,
+    var windDirectionDeg: Double? = null,
+    var windGustMs: Double? = null,
+    var waveHeightM: Double? = null,
 
     var memo: String? = null,
 

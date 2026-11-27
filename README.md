@@ -41,9 +41,16 @@ SPRING_PROFILES_ACTIVE=postgres ./gradlew bootRun
 | GET | `/api/map/nearby` | 내 주변 공개 조행(포인트) 검색 `?lat=&lng=&radiusKm=20&limit=50` |
 
 ### Phase 2 자동화
-- **환경 자동 채움**: 조행 등록 시 `latitude`/`longitude`가 있고 `weather`/`waterTemp`/`tideInfo`가
-  비어 있으면 `EnvironmentDataProvider`가 자동으로 채웁니다. 현재는 `StubEnvironmentDataProvider`(외부 API 불필요)가 기본.
-  실제 연동은 `environment/EnvironmentData.kt`의 `RealEnvironmentDataProvider` 주석 참고 (기상청 단기예보 + 바다누리 조석예보).
+- **환경 자동 채움**: 조행 등록 시 `latitude`/`longitude`가 있으면 `EnvironmentDataProvider`가
+  날씨·수온·바람·파고를 자동으로 채웁니다.
+  - 기본 구현: **`OpenMeteoProvider`**(`@Primary`, 한국 연안 대상, API 키 불필요)
+    - 날씨/바람: `api.open-meteo.com/v1/forecast` (GFS·ICON 등 다중 모델 블렌드)
+    - 해양(파고·표층수온): `marine-api.open-meteo.com/v1/marine`
+    - `timezone=auto` + 조행 시각에 가장 가까운 시간대 값 선택
+    - 응답 필드: `windSpeedMs`, `windDirectionDeg`, `windDirectionText`(16방위 한글), `windGustMs`, `waveHeightM`, `waterTemp`(SST)
+  - 외부 호출 실패 시 조용히 null (조행 등록은 항상 성공)
+  - 조석/물때(`tideInfo`)는 Open-Meteo 범위 밖 → 국립해양조사원(바다누리) 연동 예정
+  - 테스트용 `StubEnvironmentDataProvider`(외부 호출 없음)도 유지 — `@Primary` 를 옮기면 전환
 - **지도 검색**: `/api/map/nearby`는 바운딩 박스로 1차 조회 후 Haversine으로 반경을 정밀 필터링하고 거리순 정렬.
 
 ### Phase 3 커뮤니티 (토큰 필요)

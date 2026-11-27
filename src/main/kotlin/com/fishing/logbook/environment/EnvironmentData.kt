@@ -9,6 +9,10 @@ data class EnvironmentData(
     val weather: String?,
     val waterTemp: Double?,
     val tideInfo: String?,
+    val windSpeedMs: Double? = null,      // 10m 풍속 (m/s)
+    val windDirectionDeg: Double? = null, // 10m 풍향 (불어오는 방향, 0=북 90=동)
+    val windGustMs: Double? = null,       // 돌풍 (m/s)
+    val waveHeightM: Double? = null,      // 유의파고 (m)
 )
 
 /**

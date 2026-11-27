@@ -49,6 +49,11 @@ data class TripResponse(
     val weather: String?,
     val waterTemp: Double?,
     val tideInfo: String?,
+    val windSpeedMs: Double?,
+    val windDirectionDeg: Double?,
+    val windDirectionText: String?,
+    val windGustMs: Double?,
+    val waveHeightM: Double?,
     val memo: String?,
     val visibility: Visibility,
     val gears: List<String>,
@@ -66,6 +71,11 @@ data class TripResponse(
             weather = t.weather,
             waterTemp = t.waterTemp,
             tideInfo = t.tideInfo,
+            windSpeedMs = t.windSpeedMs,
+            windDirectionDeg = t.windDirectionDeg,
+            windDirectionText = t.windDirectionDeg?.let { cardinal(it) },
+            windGustMs = t.windGustMs,
+            waveHeightM = t.waveHeightM,
             memo = t.memo,
             visibility = t.visibility,
             gears = t.gears.toList(),
@@ -74,6 +84,13 @@ data class TripResponse(
             },
             totalCatchCount = t.catches.sumOf { it.count },
         )
+
+        /** 풍향(도) → 16방위 한글 */
+        private fun cardinal(deg: Double): String {
+            val dirs = listOf("북","북북동","북동","동북동","동","동남동","남동","남남동",
+                              "남","남남서","남서","서남서","서","서북서","북서","북북서")
+            return dirs[(((deg % 360 + 360) % 360 + 11.25) / 22.5).toInt() % 16]
+        }
     }
 }
 
@@ -90,10 +107,8 @@ class TripService(
         val user = userRepository.findById(userId).orElseThrow {
             IllegalArgumentException("사용자를 찾을 수 없습니다")
         }
-        // 좌표가 있고 환경 정보가 비어 있으면 자동 채움 (Phase 2)
-        val env = if (req.latitude != null && req.longitude != null &&
-            (req.weather == null || req.waterTemp == null || req.tideInfo == null)
-        ) {
+        // 좌표가 있으면 환경 정보 자동 채움 (Phase 2: Open-Meteo 바람/파고/수온)
+        val env = if (req.latitude != null && req.longitude != null) {
             environmentDataProvider.fetch(req.latitude, req.longitude, req.fishedAt)
         } else null
 
@@ -107,6 +122,10 @@ class TripService(
             weather = req.weather ?: env?.weather,
             waterTemp = req.waterTemp ?: env?.waterTemp,
             tideInfo = req.tideInfo ?: env?.tideInfo,
+            windSpeedMs = env?.windSpeedMs,
+            windDirectionDeg = env?.windDirectionDeg,
+            windGustMs = env?.windGustMs,
+            waveHeightM = env?.waveHeightM,
             memo = req.memo,
             visibility = req.visibility,
             gears = req.gears.toMutableList(),
