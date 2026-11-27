@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
+import java.net.URI
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -51,8 +54,10 @@ class KhoaTideProvider(
 
     private fun call(obsCode: String, date: LocalDate): String {
         val ymd = date.format(DateTimeFormatter.BASIC_ISO_DATE) // yyyyMMdd
-        val url = "$base?serviceKey=$serviceKey&obsCode=$obsCode&date=$ymd&numOfRows=10&pageNo=1&type=json"
-        return client.get().uri(url).retrieve().body(String::class.java) ?: "{}"
+        // data.go.kr "Decoding" 키(raw)를 직접 URL 인코딩. 완성된 URI 를 넘겨 RestClient 재인코딩 방지.
+        val key = URLEncoder.encode(serviceKey, StandardCharsets.UTF_8)
+        val url = "$base?serviceKey=$key&obsCode=$obsCode&date=$ymd&numOfRows=10&pageNo=1&type=json"
+        return client.get().uri(URI.create(url)).retrieve().body(String::class.java) ?: "{}"
     }
 
     /** data.go.kr 응답(body.items.item[]) → 고저조 이벤트 목록. item 이 단건/배열 모두 대응. */
