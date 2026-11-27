@@ -4,6 +4,10 @@ build/
 *.log
 uploads/
 data/
+
+# 로컬 비밀 설정 (API 키 등) — 절대 커밋 금지
+src/main/resources/application-local.yml
+application-local.yml
 .idea/
 *.iml
 .DS_Store

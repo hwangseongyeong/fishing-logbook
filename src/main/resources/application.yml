@@ -1,6 +1,9 @@
 spring:
   application:
     name: fishing-logbook
+  # 비밀 값은 gitignore된 application-local.yml 에 두면 자동으로 덮어씌움(있을 때만).
+  config:
+    import: "optional:classpath:application-local.yml"
   # 기본은 H2(파일) — 받자마자 바로 실행되고, 앱을 꺼도 ./data 에 데이터가 유지됩니다.
   datasource:
     url: jdbc:h2:file:./data/logbook;MODE=PostgreSQL
@@ -30,6 +33,7 @@ app:
     expiration-ms: 86400000   # 24h
   khoa:
     # 공공데이터포털(data.go.kr) 조석예보 서비스키. 미설정이면 물때(tideInfo) 자동채움 생략.
+    # 키는 커밋 금지! 환경변수 KHOA_SERVICE_KEY 또는 gitignore된 application-local.yml 로 주입.
     service-key: ${KHOA_SERVICE_KEY:}
 
 ---
